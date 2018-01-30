@@ -1,0 +1,36 @@
+{
+  "name": "@basedakp48/plugin-remind",
+  "version": "0.0.1",
+  "description": "A convenient way to remind yourself.",
+  "license": "MIT",
+  "repository": "BasedAKP48/plugin-remind",
+  "author": "Alan H (feildmaster) <akp48@feildmaster.com> (https://feildmaster.com/)",
+  "contributors": [
+    "Austin Peterson <austin@akpwebdesign.com> (https://blog.akpwebdesign.com)"
+  ],
+  "engines": {
+    "node": ">=8"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "files": [
+    "index.js",
+    "lib/*.js"
+  ],
+  "keywords": [
+    "basedakp48",
+    "basedakp48-plugin",
+    "remind"
+  ],
+  "dependencies": {
+    "@basedakp48/plugin-utils": "^1.13.0",
+    "firebase-admin": "^5.8.1",
+    "moment": "^2.20.1",
+    "moment-duration-format": "^2.2.1"
+  },
+  "devDependencies": {
+    "@basedakp48/eslint-config": "^1.0.1",
+    "eslint": "^4.16.0"
+  }
+}
