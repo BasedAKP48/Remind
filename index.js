@@ -24,7 +24,7 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
         .catch(err => err.message || err)
         .then((response) => {
           if (Number.isInteger(response)) {
-            const text = `Reminder set for ${moment.duration(response).format(format, { trim: 'all' }) || '0s'} from now.`;
+            const text = `Reminding in ${moment.duration(response).format(format, { trim: 'all' }) || '0s'}`;
             const data = { mention: true, mentionID: msg.uid };
             const message = utils.getReply(msg, plugin.cid, text, data);
             plugin.messageSystem().sendMessage(message);
