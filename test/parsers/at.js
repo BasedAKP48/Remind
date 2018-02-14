@@ -23,6 +23,7 @@ const tests = [
   { arg: '13:20', expects: false },
   { arg: '7:13am', expects: moment(now).set('hour', 7).startOf('hour').set('minutes', 13) },
   { arg: '8-6', expects: moment(now).utcOffset('-06:00').set('hour', 8).startOf('hour') },
+  { arg: '23-6', expects: moment(now).utcOffset('-06:00').set('hour', 23).startOf('hour') },
 ];
 
 describe('at', () => {
