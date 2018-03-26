@@ -31,6 +31,17 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
               const message = utils.getReply(msg, plugin.cid, text, data);
               plugin.messageSystem().sendMessage(message);
             }
+            if (options.delete && msg.data && msg.data.messageID) {
+              plugin.response({
+                target: msg.cid,
+                command: 'delete-message',
+                arg: msg.data.messageID,
+              }).then((reply) => {
+                // Ignore any response, we don't care
+              }).catch((error) => {
+                // Ignore any errors, we don't care
+              });
+            }
             return;
           }
           if (!response) return;
@@ -47,6 +58,9 @@ function getOptions(args) {
     const arg = args[time];
     if (!arg.startsWith('-')) break;
     switch (arg) {
+      case '-delete':
+        options.delete = true;
+        break;
       case '-none':
         options.none = true;
         break;
