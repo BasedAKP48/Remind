@@ -35,7 +35,9 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
               plugin.response({
                 target: msg.cid,
                 command: 'delete-message',
-                arg: msg.data.messageID,
+                // I really hope this can't get more complex on other platforms.
+                arg: msg.channel,
+                data: msg.data.messageID,
               }).then((reply) => {
                 // Ignore any response, we don't care
               }).catch((error) => {
