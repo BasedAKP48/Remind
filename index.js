@@ -25,10 +25,12 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
         .catch(err => err.message || err)
         .then((response) => {
           if (Number.isInteger(response)) {
-            const text = `Reminding in ${moment.duration(response).format(format, { trim: 'all' }) || '0s'}`;
-            const data = { mention: true, mentionID: msg.uid };
-            const message = utils.getReply(msg, plugin.cid, text, data);
-            plugin.messageSystem().sendMessage(message);
+            if (!options.silent) {
+              const text = `Reminding in ${moment.duration(response).format(format, { trim: 'all' }) || '0s'}`;
+              const data = { mention: true, mentionID: msg.uid };
+              const message = utils.getReply(msg, plugin.cid, text, data);
+              plugin.messageSystem().sendMessage(message);
+            }
             return;
           }
           if (!response) return;
@@ -47,6 +49,9 @@ function getOptions(args) {
     switch (arg) {
       case '-none':
         options.none = true;
+        break;
+      case '-silent':
+        options.silent = true;
         break;
       case '-w':
         mentions.push(args[time += 1]);
