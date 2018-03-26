@@ -15,12 +15,13 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
   if (!msg.text.startsWith('.')) return null;
   const end = msg.text.indexOf(' ') === -1 ? null : msg.text.indexOf(' ');
   const cmd = msg.text.substring(1, end);
+  const options = getOptions(msg.text.substring(cmd.length + 2).trim().split(' '));
   switch (cmd) {
     default: return null;
     case 'remind':
     case 'reminder':
     // case 'r':
-      return remind.parse(msg.text.substring(cmd.length + 2), msg, cmd)
+      return remind.parse(options, msg, cmd)
         .catch(err => err.message || err)
         .then((response) => {
           if (Number.isInteger(response)) {
@@ -35,3 +36,26 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
         });
   }
 });
+
+function getOptions(args) {
+  const options = {};
+  const mentions = [];
+  let time = 0;
+  for (; time < args.length; time++) {
+    const arg = args[time];
+    if (!arg.startsWith('-')) break;
+    switch (arg) {
+      case '-none':
+        options.none = true;
+        break;
+      case '-w':
+        mentions.push(args[time += 1]);
+        break;
+      default: // Eat it
+    }
+  }
+  options.mention = mentions.join(' ');
+  options.time = args[time];
+  options.message = args.slice(time + 1).join(' ');
+  return options;
+}
