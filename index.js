@@ -25,13 +25,11 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
         .catch(err => err.message || err)
         .then((response) => {
           if (Number.isInteger(response)) {
-            if (!options.silent) {
-              const text = `Reminding in ${moment.duration(response).format(format, { trim: 'all' }) || '0s'}`;
-              const data = { mention: true, mentionID: msg.uid };
-              const message = utils.getReply(msg, plugin.cid, text, data);
-              plugin.messageSystem().sendMessage(message);
+            const willDelete = options.delete && msg.data && msg.data.messageID;
+            if (!options.silent || (options.delete && !willDelete)) {
+              confirmReminder(msg, response);
             }
-            if (options.delete && msg.data && msg.data.messageID) {
+            if (willDelete) {
               plugin.response({
                 target: msg.cid,
                 command: 'delete-message',
@@ -41,7 +39,9 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
               }).then((reply) => {
                 // Ignore any response, we don't care
               }).catch((error) => {
-                // Ignore any errors, we don't care
+                if (options.silent) {
+                  confirmReminder(msg, response);
+                }
               });
             }
             return;
@@ -51,6 +51,13 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
         });
   }
 });
+
+function confirmReminder(msg, time) {
+  const text = `Reminding in ${moment.duration(time).format(format, { trim: 'all' }) || '0s'}`;
+  const data = { mention: true, mentionID: msg.uid };
+  const message = utils.getReply(msg, plugin.cid, text, data);
+  return plugin.messageSystem().sendMessage(message);
+}
 
 function getOptions(args) {
   const options = {};
