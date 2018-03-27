@@ -54,7 +54,10 @@ plugin.messageSystem().on('message-in', (msg, ref) => {
 
 function confirmReminder(msg, time) {
   const text = `Reminding in ${moment.duration(time).format(format, { trim: 'all' }) || '0s'}`;
-  const data = { mention: true, mentionID: msg.uid };
+  const data = {
+    mention: !msg.data || !msg.data.isPM,
+    mentionID: msg.uid,
+  };
   const message = utils.getReply(msg, plugin.cid, text, data);
   return plugin.messageSystem().sendMessage(message);
 }
