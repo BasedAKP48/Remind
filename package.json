@@ -25,7 +25,7 @@
     "remind"
   ],
   "dependencies": {
-    "@basedakp48/plugin-utils": "^1.15.2",
+    "@basedakp48/plugin-utils": "^1.15.3",
     "firebase-admin": "^5.11.0",
     "moment": "^2.21.0",
     "moment-duration-format": "^2.2.2"
