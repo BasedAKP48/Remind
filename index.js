@@ -67,7 +67,9 @@ function confirmReminder(msg, time) {
 }
 
 function getOptions(args) {
-  const options = {};
+  const options = {
+    allowMentions: true,
+  };
   const mentions = [];
   let time = 0;
   for (; time < args.length; time++) {
@@ -78,7 +80,7 @@ function getOptions(args) {
         options.delete = true;
         break;
       case '-none':
-        options.none = true;
+        options.allowMentions = false;
         break;
       case '-silent':
         options.silent = true;
