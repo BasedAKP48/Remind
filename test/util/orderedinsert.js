@@ -28,6 +28,7 @@ describe('ordered insertion', () => {
     expect(insert(1500)).to.equal(2);
     expect(queue).to.deep.equal([100, 1000, 1500, 2000, 3000]);
   });
+  // Should be third
   it('1000 (again) should be second', () => {
     expect(insert(1000)).to.equal(1);
     expect(queue).to.deep.equal([100, 1000, 1000, 1500, 2000, 3000]);
