@@ -1,5 +1,5 @@
 const chai = require('chai');
-const insertOrdered = require('../lib/listener').insertOrdered;
+const insertOrdered = require('../../util/insertOrdered');
 
 const expect = chai.expect;
 
