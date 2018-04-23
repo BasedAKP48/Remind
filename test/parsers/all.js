@@ -15,6 +15,7 @@ const tests = [
     expects: moment(now).utcOffset('-09:00').set('hour', 8).startOf('hour'),
     mutate: m => (m.isBefore(now) ? m.add(1, 'day') : m),
   },
+  { arg: '(54-44)*60', expects: now + 600 },
 ];
 
 describe('all parsers', () => {
