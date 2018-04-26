@@ -41,8 +41,9 @@ const tests = [
   { arg: '25@22-5', expects: moment('2018-05-25T22:00:00.000-05:00') },
   // -30 minutes from "now", next year
   { arg: '4-25@22-5', expects: moment('2019-04-25T22:00:00.000-05:00') },
-  // TODO: Round up for both these cases
+  // The next century
   { arg: '1/22/00@8-6', expects: moment('2100-01-22T08:00:00.000-06:00') },
+  // The next millenia
   { arg: '1/22/000@8-6', expects: moment('3000-01-22T08:00:00.000-06:00') },
 ];
 
