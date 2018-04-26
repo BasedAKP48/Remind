@@ -3,81 +3,47 @@ const moment = require('moment');
 const at = require('../../lib/parsers/at');
 const Parser = require('../../lib/parsers/parser');
 
+// TODO: use static times
 const expect = chai.expect;
-const now = Date.now();
+const now = '2018-04-25T22:30:00.000';
 /**
  * @typedef {object} Test
  * @property {string} arg the argument to test
- * @property {moment | Function | boolean} [expects] the expected value
+ * @property {moment | boolean} [expects] the expected value
  */
 
 // TODO: Random tests
 /** @type {Test[]} */
 const tests = [
   { arg: '1s2m' },
-  { arg: '1am', expects: moment(now).set('hour', 1).startOf('hour') },
-  { arg: '12p', expects: moment(now).set('hour', 12).startOf('hour') },
-  { arg: '11:30am', expects: moment(now).set('hour', 11).startOf('hour').set('minutes', 30) },
-  { arg: '12am+9', expects: moment(now).utcOffset('+09:00').set('hour', 0).startOf('hour') },
-  { arg: '2p-6:30', expects: moment(now).utcOffset('-06:30').set('hour', 14).startOf('hour') },
+  { arg: '1am', expects: moment('2018-04-26T01:00:00.000-05:00') },
+  { arg: '12p', expects: moment('2018-04-26T12:00:00.000-05:00') },
+  { arg: '11:30am', expects: moment('2018-04-26T11:30:00.000-05:00') },
+  { arg: '12am+9', expects: moment('2018-04-27T00:00:00.000+09:00') },
+  { arg: '2p-6:30', expects: moment('2018-04-26T14:00:00.000-06:30') },
   { arg: '13:20', expects: false },
-  { arg: '7:13am', expects: moment(now).set('hour', 7).startOf('hour').set('minutes', 13) },
-  { arg: '8-6', expects: moment(now).utcOffset('-06:00').set('hour', 8).startOf('hour') },
-  { arg: '23-6', expects: moment(now).utcOffset('-06:00').set('hour', 23).startOf('hour') },
-  {
-    arg: '11@23-5',
-    expects: () => {
-      const ret = moment(now).utcOffset('-05:00');
-      if (ret.date() > 11) {
-        ret.add(1, 'month');
-      }
-      ret.date(11).set('hour', 23).startOf('hour');
-      return ret;
-    },
-  },
-  {
-    arg: '4-21@8p-6',
-    expects: () => {
-      const month = 3;
-      const day = 21;
-      const ret = moment(now).utcOffset('-06:00');
-      if (ret.month() >= month && ret.date() > day) {
-        ret.add(1, 'year');
-      }
-      ret.month(month).date(day);
-      ret.set('hour', 20).startOf('hour');
-      return ret;
-    },
-  },
-  {
-    arg: '12/22/90@8-6',
-    expects: () => {
-      const year = 90;
-      const ret = moment(now).utcOffset('-06:00');
-      const len = Math.ceil(Math.log10(year + 1)); // Long live the future
-      if (ret.year() < (ret.year() - (ret.year() % (10 ** len))) + year) {
-        ret.year((ret.year() - (ret.year() % (10 ** len))) + year);
-      }
-      ret.month(11).date(22);
-      ret.set('hour', 8).startOf('hour');
-      return ret;
-    },
-  },
-  {
-    arg: '12/22/190@8-6',
-    expects: () => {
-      const year = 190;
-      const ret = moment(now).utcOffset('-06:00');
-      const len = Math.ceil(Math.log10(year + 1)); // Long live the future
-      const finalYear = (ret.year() - (ret.year() % (10 ** len))) + year;
-      ret.year(finalYear);
-      ret.month(11).date(22);
-      ret.set('hour', 8).startOf('hour');
-      return ret;
-    },
-  },
+  { arg: '7:13am', expects: moment('2018-04-26T07:13:00.000-05:00') },
+  { arg: '8-6', expects: moment('2018-04-26T08:00:00.000-06:00') },
+  { arg: '23-6', expects: moment('2018-04-25T23:00:00.000-06:00') },
+  // Next month, the 11th has passed already
+  { arg: '11@23-5', expects: moment('2018-05-11T23:00:00.000-05:00') },
+  // Next year, April 23rd has passed already
+  { arg: '4-23@8p-5', expects: moment('2019-04-23T20:00:00.000-05:00') },
+  { arg: '12/22/90@8-6', expects: moment('2090-12-22T08:00:00.000-06:00') },
+  { arg: '12/22/190@8-6', expects: moment('2190-12-22T08:00:00.000-06:00') },
+  // Both delimiters must match
   { arg: '12/22-90@8-6' },
+  // Forcing the past fails
   { arg: '12/22/1990@8-6', expects: false },
+  // 30 minutes from "now", still today
+  { arg: '25@23-5', expects: moment('2018-04-25T23:00:00.000-05:00') },
+  // -30 minutes from "now", next month
+  { arg: '25@22-5', expects: moment('2018-05-25T22:00:00.000-05:00') },
+  // -30 minutes from "now", next year
+  { arg: '4-25@22-5', expects: moment('2019-04-25T22:00:00.000-05:00') },
+  // TODO: Round up for both these cases
+  { arg: '1/22/00@8-6', expects: moment('2100-01-22T08:00:00.000-06:00') },
+  { arg: '1/22/000@8-6', expects: moment('3000-01-22T08:00:00.000-06:00') },
 ];
 
 describe('at', () => {
@@ -92,18 +58,7 @@ describe('at', () => {
         expect(at.test(test.arg)).to.equal(passes);
       });
       if (!passes) return;
-      if (test.expects instanceof Function) {
-        test.expects = test.expects();
-      }
       const expectsMoment = test.expects instanceof moment;
-      // This parser is very dynamic, we have to add a day in some cases
-      if (expectsMoment && test.expects.isBefore(now)) {
-        if (test.mutate instanceof Function) {
-          test.mutate(test.expects);
-        } else if (test.mutate !== false) {
-          test.expects.add(1, 'day');
-        }
-      }
       const ret = expectsMoment ? test.expects.toISOString(true) : test.expects;
       it(`Returns ${ret}`, () => {
         if (expectsMoment) {
